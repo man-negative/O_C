@@ -31,8 +31,9 @@ class TuringShiftRegister {
 public:
   static const uint8_t kMinLength = 3;
   static const uint8_t kMaxLength = 32;
-  static const uint8_t kDefaultLength = 16;
-  static const uint8_t kDefaultProbability = 128;
+  static const uint8_t kDefaultLength = 8;
+  static const uint8_t kDefaultProbability = 0;
+  uint8_t current_register_position = 0;
 
   void Init() {
     length_ = kDefaultLength;
@@ -60,7 +61,24 @@ public:
 
     shift_register_ = shift_register;
 
+    current_register_position = (current_register_position + 1) % length_;
+
     return shift_register & ~(0xffffffff << length_);
+  }
+
+  void reset_shift_register() {
+
+    Serial.println(current_register_position);
+    uint32_t shift_register = shift_register_;
+
+    shift_register = (shift_register << current_register_position) | (shift_register >> (length_ - current_register_position));
+
+    shift_register_ = shift_register & ~(0xffffffff << length_);
+    current_register_position = 0;
+  }
+
+  uint8_t get_current_register_position() {
+    return current_register_position;
   }
 
   void set_length(uint8_t length) {
